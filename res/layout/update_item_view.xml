@@ -104,6 +104,20 @@
                 android:gravity="right"
                 android:text="@string/action_changelog"
                 android:textAllCaps="true" />
+            <ImageButton
+                android:id="@+id/update_menu"
+                style="?android:attr/actionOverflowButtonStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:padding="8dp" />
+            <Button
+                android:id="@id/update_action"
+                style="@style/Widget.AppCompat.Button.Borderless.Colored"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="8dp"
+                tools:text="Pause" />
         </LinearLayout>
     </LinearLayout>
 </androidx.cardview.widget.CardView>
