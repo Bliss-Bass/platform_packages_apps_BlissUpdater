@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2022 The LineageOS Project
+ * Copyright (C) 2017-2023 The LineageOS Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,9 +42,11 @@ import com.blissroms.updater.misc.BuildInfoUtils;
 import com.blissroms.updater.misc.Constants;
 import com.blissroms.updater.misc.StringGenerator;
 import com.blissroms.updater.misc.Utils;
+import com.blissroms.updater.model.Update;
 import com.blissroms.updater.model.UpdateInfo;
 import com.blissroms.updater.model.UpdateStatus;
 
+import java.io.File;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.NumberFormat;
@@ -123,8 +125,10 @@ public class UpdaterService extends Service {
                     setNotificationTitle(update);
                     handleInstallProgress(update);
                 } else if (UpdaterController.ACTION_UPDATE_REMOVED.equals(intent.getAction())) {
+                    final boolean isLocalUpdate = Update.LOCAL_ID.equals(downloadId);
                     Bundle extras = mNotificationBuilder.getExtras();
-                    if (downloadId.equals(extras.getString(UpdaterController.EXTRA_DOWNLOAD_ID))) {
+                    if (extras != null && !isLocalUpdate && downloadId.equals(
+                            extras.getString(UpdaterController.EXTRA_DOWNLOAD_ID))) {
                         mNotificationBuilder.setExtras(null);
                         UpdateInfo update = mUpdaterController.getUpdate(downloadId);
                         if (update.getStatus() != UpdateStatus.INSTALLED) {
@@ -413,7 +417,9 @@ public class UpdaterService extends Service {
 
                 SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
                 boolean deleteUpdate = pref.getBoolean(Constants.PREF_AUTO_DELETE_UPDATES, false);
-                if (deleteUpdate) {
+                boolean isLocal = Update.LOCAL_ID.equals(update.getDownloadId());
+                // Always delete local updates
+                if (deleteUpdate || isLocal) {
                     mUpdaterController.deleteUpdate(update.getDownloadId());
                 }
 
