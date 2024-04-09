@@ -43,6 +43,15 @@
 
         <service android:name="com.blissroms.updater.controller.UpdaterService" />
         <service android:name="com.blissroms.updater.ExportUpdateService" />
+        <service
+            android:name="com.blissroms.updater.UpdaterPublicService"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="UpdaterPublicService" />
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </service>
 
         <receiver android:name="com.blissroms.updater.UpdaterReceiver" android:exported="false">
             <intent-filter>

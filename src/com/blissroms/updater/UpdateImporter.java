@@ -18,6 +18,7 @@ package com.blissroms.updater;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
@@ -54,12 +55,20 @@ public class UpdateImporter {
     private static final String METADATA_TIMESTAMP_KEY = "post-timestamp=";
 
     private final Activity activity;
+    private final Context context;
     private final Callbacks callbacks;
 
     private Thread workingThread;
 
     public UpdateImporter(Activity activity, Callbacks callbacks) {
         this.activity = activity;
+        this.context = activity;
+        this.callbacks = callbacks;
+    }
+
+    public UpdateImporter(Context context, Callbacks callbacks) {
+        this.activity = null;
+        this.context = context;
         this.callbacks = callbacks;
     }
 
@@ -82,22 +91,42 @@ public class UpdateImporter {
             return false;
         }
 
-        return onPicked(data.getData());
+        final ParcelFileDescriptor parcelDescriptor;
+        try {
+            parcelDescriptor = context.getContentResolver()
+                    .openFileDescriptor(data.getData(), "r");
+        } catch (FileNotFoundException e) {
+            return false;
+        }
+        if (parcelDescriptor == null) {
+            return false;
+        }
+
+        boolean ret = onPicked(parcelDescriptor);
+        try {
+            parcelDescriptor.close();
+        } catch (IOException e) {
+            return false;
+        }
+        return ret;
     }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
-    private boolean onPicked(Uri uri) {
+    public boolean onPicked(ParcelFileDescriptor pfd) {
         callbacks.onImportStarted();
 
         workingThread = new Thread(() -> {
             File importedFile = null;
             try {
-                importedFile = importFile(uri);
+                importedFile = importFile(pfd);
                 verifyPackage(importedFile);
 
                 final Update update = buildLocalUpdate(importedFile);
                 addUpdate(update);
-                activity.runOnUiThread(() -> callbacks.onImportCompleted(update));
+                if (activity != null)
+                    activity.runOnUiThread(() -> callbacks.onImportCompleted(update));
+                else
+                    callbacks.onImportCompleted(update);
             } catch (Exception e) {
                 Log.e(TAG, "Failed to import update package", e);
                 // Do not store invalid update
@@ -105,7 +134,10 @@ public class UpdateImporter {
                     importedFile.delete();
                 }
 
-                activity.runOnUiThread(() -> callbacks.onImportCompleted(null));
+                if (activity != null)
+                    activity.runOnUiThread(() -> callbacks.onImportCompleted(null));
+                else
+                    callbacks.onImportCompleted(null);
             }
         });
         workingThread.start();
@@ -114,16 +146,10 @@ public class UpdateImporter {
 
     @SuppressLint("SetWorldReadable")
     @SuppressWarnings("ResultOfMethodCallIgnored")
-    private File importFile(Uri uri) throws IOException {
-        final ParcelFileDescriptor parcelDescriptor = activity.getContentResolver()
-                .openFileDescriptor(uri, "r");
-        if (parcelDescriptor == null) {
-            throw new IOException("Failed to obtain fileDescriptor");
-        }
-
+    private File importFile(ParcelFileDescriptor parcelDescriptor) throws IOException {
         final FileInputStream iStream = new FileInputStream(parcelDescriptor
                 .getFileDescriptor());
-        final File downloadDir = Utils.getDownloadPath(activity);
+        final File downloadDir = Utils.getDownloadPath(context);
         final File outFile = new File(downloadDir, FILE_NAME);
         if (outFile.exists()) {
             outFile.delete();
@@ -138,7 +164,6 @@ public class UpdateImporter {
         oStream.flush();
         oStream.close();
         iStream.close();
-        parcelDescriptor.close();
 
         outFile.setReadable(true, false);
 
@@ -148,8 +173,8 @@ public class UpdateImporter {
     private Update buildLocalUpdate(File file) {
         final long timeStamp = getTimeStamp(file);
         final String buildDate = StringGenerator.getDateLocalizedUTC(
-                activity, DateFormat.MEDIUM, timeStamp);
-        final String name = activity.getString(R.string.local_update_name);
+                context, DateFormat.MEDIUM, timeStamp);
+        final String name = context.getString(R.string.local_update_name);
         final Update update = new Update();
         update.setAvailableOnline(false);
         update.setName(name);
@@ -178,7 +203,7 @@ public class UpdateImporter {
     }
 
     private void addUpdate(Update update) {
-        UpdaterController controller = UpdaterController.getInstance(activity);
+        UpdaterController controller = UpdaterController.getInstance(context);
         controller.addUpdate(update, false);
     }
 
