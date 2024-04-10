@@ -15,6 +15,11 @@
  */
 package com.blissroms.updater.model;
 
+import static com.blissroms.updater.misc.Utils.UpdateItemStatusToUpdateStatus;
+import static com.blissroms.updater.misc.Utils.UpdateStatusToUpdateItemStatus;
+
+import com.blissos.updatersdk.UpdateItemInfo;
+
 import java.io.File;
 
 public class Update extends UpdateBase implements UpdateInfo {
@@ -125,5 +130,53 @@ public class Update extends UpdateBase implements UpdateInfo {
 
     public void setFinalizing(boolean finalizing) {
         mIsFinalizing = finalizing;
+    }
+
+    public static Update UpdateItemInfoToUpdate(UpdateItemInfo update) {
+        Update ret = new Update();
+        if (update == null)
+            return ret;
+
+        ret.setName(update.name);
+        ret.setDownloadUrl(update.downloadUrl);
+        ret.setDownloadId(update.downloadId);
+        ret.setTimestamp(update.timestamp);
+        ret.setVersion(update.version);
+        ret.setFileSize(update.fileSize);
+
+        ret.setStatus(UpdateItemStatusToUpdateStatus(update.status));
+        ret.setPersistentStatus(update.persistentStatus);
+        ret.setProgress(update.progress);
+        ret.setEta(update.eta);
+        ret.setSpeed(update.speed);
+        ret.setInstallProgress(update.installProgress);
+        ret.setAvailableOnline(update.availableOnline);
+        ret.setFinalizing(update.finalizing);
+
+        return ret;
+    }
+
+    public static UpdateItemInfo UpdateToUpdateItemInfo(Update update) {
+        UpdateItemInfo ret = new UpdateItemInfo();
+        if (update == null)
+            return ret;
+
+        ret.name = update.getName();
+        ret.downloadUrl = update.getDownloadUrl();
+        ret.downloadId = update.getDownloadId();
+        ret.timestamp = update.getTimestamp();
+        ret.version = update.getVersion();
+        ret.fileSize = update.getFileSize();
+
+        ret.status = UpdateStatusToUpdateItemStatus(update.getStatus());
+        ret.persistentStatus = update.getPersistentStatus();
+        ret.progress = update.getProgress();
+        ret.eta = update.getEta();
+        ret.speed = update.getSpeed();
+        ret.installProgress = update.getInstallProgress();
+        ret.availableOnline = update.getAvailableOnline();
+        ret.finalizing = update.getFinalizing();
+
+        return ret;
     }
 }

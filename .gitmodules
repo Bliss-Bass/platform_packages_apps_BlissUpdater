@@ -1,0 +1,3 @@
+[submodule "BlissUpdaterSDK"]
+	path = BlissUpdaterSDK
+	url = https://github.com/Bliss-Bass/platform_external_updatersdk.git

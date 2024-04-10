@@ -30,6 +30,7 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.blissos.updatersdk.UpdateItemStatus;
 import com.blissroms.updater.UpdatesDbHelper;
 import com.blissroms.updater.controller.UpdaterService;
 import com.blissroms.updater.model.Update;
@@ -40,6 +41,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import com.blissroms.updater.R;
+import com.blissroms.updater.model.UpdateStatus;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -389,5 +391,73 @@ public class Utils {
 
     public static boolean isRecoveryUpdateExecPresent() {
         return new File(Constants.UPDATE_RECOVERY_EXEC).exists();
+    }
+
+    public static UpdateStatus UpdateItemStatusToUpdateStatus(int status) {
+        switch (status) {
+            case UpdateItemStatus.UNKNOWN:
+                return UpdateStatus.UNKNOWN;
+            case UpdateItemStatus.STARTING:
+                return UpdateStatus.STARTING;
+            case UpdateItemStatus.DOWNLOADING:
+                return UpdateStatus.DOWNLOADING;
+            case UpdateItemStatus.PAUSED:
+                return UpdateStatus.PAUSED;
+            case UpdateItemStatus.PAUSED_ERROR:
+                return UpdateStatus.PAUSED_ERROR;
+            case UpdateItemStatus.DELETED:
+                return UpdateStatus.DELETED;
+            case UpdateItemStatus.VERIFYING:
+                return UpdateStatus.VERIFYING;
+            case UpdateItemStatus.VERIFIED:
+                return UpdateStatus.VERIFIED;
+            case UpdateItemStatus.VERIFICATION_FAILED:
+                return UpdateStatus.VERIFICATION_FAILED;
+            case UpdateItemStatus.INSTALLING:
+                return UpdateStatus.INSTALLING;
+            case UpdateItemStatus.INSTALLED:
+                return UpdateStatus.INSTALLED;
+            case UpdateItemStatus.INSTALLATION_FAILED:
+                return UpdateStatus.INSTALLATION_FAILED;
+            case UpdateItemStatus.INSTALLATION_CANCELLED:
+                return UpdateStatus.INSTALLATION_CANCELLED;
+            case UpdateItemStatus.INSTALLATION_SUSPENDED:
+                return UpdateStatus.INSTALLATION_SUSPENDED;
+        }
+        return UpdateStatus.UNKNOWN;
+    }
+
+    public static int UpdateStatusToUpdateItemStatus(UpdateStatus status) {
+        switch (status) {
+            case UNKNOWN:
+                return UpdateItemStatus.UNKNOWN;
+            case STARTING:
+                return UpdateItemStatus.STARTING;
+            case DOWNLOADING:
+                return UpdateItemStatus.DOWNLOADING;
+            case PAUSED:
+                return UpdateItemStatus.PAUSED;
+            case PAUSED_ERROR:
+                return UpdateItemStatus.PAUSED_ERROR;
+            case DELETED:
+                return UpdateItemStatus.DELETED;
+            case VERIFYING:
+                return UpdateItemStatus.VERIFYING;
+            case VERIFIED:
+                return UpdateItemStatus.VERIFIED;
+            case VERIFICATION_FAILED:
+                return UpdateItemStatus.VERIFICATION_FAILED;
+            case INSTALLING:
+                return UpdateItemStatus.INSTALLING;
+            case INSTALLED:
+                return UpdateItemStatus.INSTALLED;
+            case INSTALLATION_FAILED:
+                return UpdateItemStatus.INSTALLATION_FAILED;
+            case INSTALLATION_CANCELLED:
+                return UpdateItemStatus.INSTALLATION_CANCELLED;
+            case INSTALLATION_SUSPENDED:
+                return UpdateItemStatus.INSTALLATION_SUSPENDED;
+        }
+        return UpdateItemStatus.UNKNOWN;
     }
 }

@@ -9,6 +9,7 @@ LOCAL_SRC_FILES := $(call all-java-files-under, src)
 LOCAL_USE_AAPT2 := true
 
 LOCAL_STATIC_ANDROID_LIBRARIES := \
+    bliss_updater_sdk \
     com.google.android.material_material \
     androidx.core_core \
     androidx.appcompat_appcompat \
